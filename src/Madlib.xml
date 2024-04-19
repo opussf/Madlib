@@ -1,0 +1,16 @@
+<!-- MADLIB @VERSION@ -->
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\FrameXML\UI.xsd">
+	<Frame name="MadlibFrame"  frameStrata="BACKGROUND" toplevel="false" parent="UIParent">
+		<Scripts>
+			<OnLoad>
+				MADLIB.OnLoad()
+			</OnLoad>
+			<OnEvent>
+				MADLIB[event](self, ...)
+			</OnEvent>
+		</Scripts>
+	</Frame>
+</Ui>

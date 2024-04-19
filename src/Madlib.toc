@@ -1,0 +1,9 @@
+## Title: Madlib
+## Interface: @INTERFACE@
+## Notes: Madlib (@VERSION@)
+## Author: opussf
+## Version: @VERSION@
+## Description: Plays some madlibs in guild chat
+## SavedVariables: MADLIB_Data
+Madlib.lua
+Madlib.xml
