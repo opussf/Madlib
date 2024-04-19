@@ -35,6 +35,22 @@ function test.test_give_adjective_1()
 	assertTrue( MADLIB.game.voteTerms.terms, "game terms should be created." )
 	assertTrue( MADLIB.game.voteTerms.terms["broken"] )
 end
+function test.test_1_term_timeOut_onupdate()
+	MADLIB.game = {
+		["index"] = 1,
+		["terms"] = {},
+		["started"] = time() - 31,
+		["voteTerms"] = {
+			["started"] = time() - 31,
+			["terms"] = {
+				["broken"] = true,
+			},
+		}
+	}
+	MADLIB.OnUpdate()
+	assertEquals( "broken", MADLIB.game.terms[1], "broken should be added to list." )
+end
+
 
 
 

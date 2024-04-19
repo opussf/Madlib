@@ -52,19 +52,33 @@ function MADLIB.StartGame( param )
 end
 
 function MADLIB.AskForTerm()
-	termIndex = #MADLIB.game.terms + 1
-	termType = MADLIB_Data[MADLIB.game.index].terms[termIndex]
-	termPre = string.find( termType, "^[aAeEiIoOuU]" ) and "an" or "a"
+	local termIndex = #MADLIB.game.terms + 1
+	local termType = MADLIB_Data[MADLIB.game.index].terms[termIndex]
+	local termPre = string.find( termType, "^[aAeEiIoOuU]" ) and "an" or "a"
 	MADLIB.game.voteTerms = { ["started"] = time(), ["terms"] = {} }
 	MADLIB.Print( string.format( "Please give me %s %s. You have 30 seconds to submit an answer.", termPre, termType ) )
 end
-function MADLIB.GetTerm( term )
+function MADLIB.GetSubmission( term )
+	-- really generic, context inputs
 	if MADLIB.game.voteTerms then
 		MADLIB.game.voteTerms.terms[term] = true
 	end
 end
 function MADLIB.VoteForTerms()
-	MADLIB.game.voteTerms.votes = {}
+	print( "VoteForTerms" )
+	-- MADLIB.game.voteTerms.votes = {}
+	-- MADLIB.game.voteTerms.count = 0
+	MADLIB.game.voteTerms.map = {}
+	for term, _ in pairs( MADLIB.game.voteTerms.terms ) do
+		print( term )
+		table.insert( MADLIB.game.voteTerms.map, term )
+		MADLIB.game.voteTerms.terms[term] = 0
+	end
+	if #MADLIB.game.voteTerms.map == 1 then
+		table.insert( MADLIB.game.terms, MADLIB.game.voteTerms.map[1] )
+	-- else
+	end
+
 
 	-- I have recieved 3 suggestions for Noun.  Please vote for your favorite: 1 - chair, 2 - desk, 3 - floor.
 end
@@ -82,7 +96,7 @@ function MADLIB.CHAT_MSG_GUILD(...)
 		if MADLIB.commandList[cmd] and MADLIB.commandList[cmd].func then
 			MADLIB.commandList[cmd].func( param )
 		else
-			MADLIB.GetTerm( cmd )
+			MADLIB.GetSubmission( cmd )
 		end
 	end
 
