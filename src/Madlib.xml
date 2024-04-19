@@ -8,6 +8,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 			<OnLoad>
 				MADLIB.OnLoad()
 			</OnLoad>
+			<OnUpdate>
+				MADLIB.OnUpdate()
+			</OnUpdate>
 			<OnEvent>
 				MADLIB[event](self, ...)
 			</OnEvent>
