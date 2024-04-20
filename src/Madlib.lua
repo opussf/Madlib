@@ -21,8 +21,8 @@ MADLIB_Data = {
 		["terms"] = { "Adjective", "Adjective", "Type of Bird", "Room in a House" }
 	}
 }
-MADLIB.submitTermTimelimit = 40
-MADLIB.voteTermTimeLimit = 40
+MADLIB.submitTermTimelimit = 60
+MADLIB.voteTermTimeLimit = 60
 MADLIB.printQueue = {}
 MADLIB.lastPrint = 0
 
@@ -145,7 +145,7 @@ function MADLIB.VoteForTerms()
 		-- print( "There is 1 item to vote on." )
 		MADLIB_game.voteTerms.closeAt = time()-1
 	elseif mapCount > 1 then
-		print( "There are multiple items to vote on." )
+		-- print( "There are multiple items to vote on." )
 		MADLIB_game.voteTerms.voteStrTable = {}
 		for i, t in ipairs( MADLIB_game.voteTerms.map ) do
 			table.insert( MADLIB_game.voteTerms.voteStrTable, i.." - "..t )
@@ -207,13 +207,13 @@ MADLIB.commandList = {
 function MADLIB.CHAT_MSG_GUILD(...)
 	_, msg, player, language, _, _, other = ...
 	-- print( msg )
-	s, e, cmd, param = string.find( string.lower( msg ), "^ml: *([^ ]+) *([^ ]*)" )
+	s, e, cmd, param = string.find( string.lower( msg ), "^ml[:;] *([^ ]+) *([^ ]*)" )
 	-- print( s, e, cmd, param )
 	if s then
 		if MADLIB.commandList[cmd] and MADLIB.commandList[cmd].func then
 			MADLIB.commandList[cmd].func( param )
 		else
-			s, e, submission = string.find( string.lower( msg ), "^ml: *(.+)" )
+			s, e, submission = string.find( string.lower( msg ), "^ml[:;] *(.+)" )
 			-- print( s, e, submission )
 			MADLIB.GetSubmission( submission )
 		end
