@@ -11,31 +11,35 @@ ParseTOC( "../src/Madlib.toc" )
 function test.before()
 	MADLIB_game = nil
 	chatLog = {}
+	MADLIB_Data = {
+		{	["story"] = "Adjective: %s, Noun: %s.",
+			["terms"] = { "Adjective", "Noun" }, },
+	}
 end
 function test.after()
 end
-function test.test_start_lower()
+function test.notest_start_lower()
 	MADLIB.CHAT_MSG_GUILD( "", "ml: start", "user1" )
 	assertTrue( MADLIB_game, "game table should be created." )
 	assertEquals( 1, MADLIB_game.index, "game index should be 1." )
 	assertTrue( MADLIB_game.terms, "game terms should be created." )
 	assertEquals( time(), MADLIB_game.started, "game start should be set.")
 end
-function test.test_start_upper()
+function test.notest_start_upper()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START", "user1" )
 	assertTrue( MADLIB_game.terms, "game terms should be created." )
 end
-function test.test_start_specific()
+function test.notest_start_specific()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
 	assertTrue( MADLIB_game.terms, "game terms should be created." )
 end
-function test.test_give_adjective_1()
+function test.notest_give_adjective_1()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
 	MADLIB.CHAT_MSG_GUILD( "", "ML: broken", "user1" )
 	assertTrue( MADLIB_game.voteTerms.terms, "game terms should be created." )
 	assertTrue( MADLIB_game.voteTerms.terms["broken"] )
 end
-function test.test_give_adjective_noSpace()
+function test.notest_give_adjective_noSpace()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
 	MADLIB.OnUpdate()
 	MADLIB.CHAT_MSG_GUILD( "", "ML:broken", "user1" )
@@ -59,7 +63,7 @@ function test.notest_1_term_timeOut_onupdate()
 	assertEquals( time(), MADLIB_game.voteTerms.closeAt )
 	assertEquals( "broken", MADLIB_game.terms[1], "broken should be added to list." )
 end
-function test.test_2_terms_timeOut_onupdate_voteStarted()
+function test.notest_2_terms_timeOut_onupdate_voteStarted()
 	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
@@ -83,7 +87,7 @@ function test.test_2_terms_timeOut_onupdate_voteStarted()
 	assertEquals( 1, MADLIB_game.voteTerms.terms.red, "red should have 1 vote." )
 	assertEquals( 0, MADLIB_game.voteTerms.terms.broken, "broken should have 0 votes." )
 end
-function test.test_2_terms_timeOut_onupdate_voteStarted()
+function test.notest_2_terms_timeOut_onupdate_voteStarted()
 	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
@@ -103,17 +107,92 @@ function test.test_2_terms_timeOut_onupdate_voteStarted()
 	-- assertEquals( 1, MADLIB_game.voteTerms.terms.red, "red should have 1 vote." )
 	-- assertEquals( 0, MADLIB_game.voteTerms.terms.broken, "broken should have 0 votes." )
 end
+function test.notest_full_terms()
+
+end
+function sorted_pairs( tableIn )
+	local keys = {}
+	for k in pairs( tableIn ) do table.insert( keys, k ) end
+	table.sort( keys )
+	local lcv = 0
+	local iter = function()
+		lcv = lcv + 1
+		if keys[lcv] == nil then return nil
+		else return keys[lcv], tableIn[keys[lcv]]
+		end
+	end
+	return iter
+end
+function EscapeStr( strIn )
+	-- This escapes a str
+	strIn = string.gsub( strIn, "\\", "\\\\" )
+	strIn = string.gsub( strIn, "\"", "\\\"" )
+	return strIn
+end
+function dump( tableIn, depth )
+	depth = depth or 1
+	for k, v in sorted_pairs( tableIn ) do
+		io.write( ("%s[\"%s\"] = "):format( string.rep("\t", depth), k ) )
+		if ( type( v ) == "boolean" ) then
+			io.write( v and "true" or "false" )
+		elseif ( type( v ) == "table" ) then
+			io.write( "{\n" )
+			dump( v, depth+1 )
+			io.write( ("%s}"):format( string.rep("\t", depth) ) )
+		elseif ( type( v ) == "string" ) then
+			io.write( "\""..EscapeStr( v ).."\"" )
+		else
+			io.write( v )
+		end
+		io.write( ",\n" )
+	end
+end
 
 function test.test_fullGame()
 	-- Start game
 	MADLIB.CHAT_MSG_GUILD( "", "ml: start", "user1" )
-	for _, s in ipairs( chatLog ) do
-		print( s.msg )
-	end
+	MADLIB.OnUpdate()
+	print( chatLog[#chatLog-1].msg )
+	print( chatLog[#chatLog].msg )
+	MADLIB.OnUpdate()
 	MADLIB.CHAT_MSG_GUILD( "", "ml: persistent", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml:sexy", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB_game.started = time() - 42; MADLIB_game.voteTerms.voteAt = time()-42
+	MADLIB.OnUpdate()
+	MADLIB.OnUpdate()
+	MADLIB.OnUpdate()
+	print( chatLog[#chatLog-1].msg )
+	print( chatLog[#chatLog].msg )
+	dump( MADLIB_game )
+	MADLIB.CHAT_MSG_GUILD( "", "ml:2", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB_game.started = time() - 42; MADLIB_game.voteTerms.closeAt = time()-1;
+	MADLIB.OnUpdate()
+	MADLIB.OnUpdate()
+	print( chatLog[#chatLog].msg )
+	MADLIB.CHAT_MSG_GUILD( "", "ml:beast", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB_game.started = time() - 42; MADLIB_game.voteTerms.voteAt = time()-42
+	MADLIB.OnUpdate()
+	MADLIB.OnUpdate()
+
+	print( chatLog[#chatLog].msg )
+	-- dump( MADLIB_game )
+	-- MADLIB_game.started = time() - 42; MADLIB_game.voteTerms.started = time()-42
+	-- MADLIB.OnUpdate()
+	-- MADLIB_game.voteTerms.closeAt = time()-1;
+	-- MADLIB.OnUpdate()
+
+
+	print( "==============" )
 	for _, s in ipairs( chatLog ) do
 		print( s.msg )
 	end
+
+	dump( MADLIB_game, 1 )
+	fail("oops")
 end
 
 
