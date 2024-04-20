@@ -4,6 +4,6 @@
 ## Author: opussf
 ## Version: @VERSION@
 ## Description: Plays some madlibs in guild chat
-## SavedVariables: MADLIB_Data
+## SavedVariables: MADLIB_Data MADLIB_game
 Madlib.lua
 Madlib.xml
