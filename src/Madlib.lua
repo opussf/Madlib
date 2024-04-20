@@ -194,6 +194,7 @@ function MADLIB.ResolveVotes()
 	-- end
 end
 function MADLIB.Publish()
+	MADLIB.Print( "<Processing Story.>" )
 	MADLIB.Print( string.format( MADLIB_Data[MADLIB_game.index].story,
 			unpack( MADLIB_game.terms )
 	) )

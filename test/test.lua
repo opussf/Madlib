@@ -130,6 +130,8 @@ function test.test_full_terms()
 	}
 	MADLIB.OnUpdate()
 	MADLIB.OnUpdate()
+	MADLIB.lastPrint = 0
+	MADLIB.OnUpdate()
 	assertEquals( "Adjective: A, Noun: N.", chatLog[#chatLog].msg )
 	assertIsNil( MADLIB_game )
 end
