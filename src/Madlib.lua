@@ -70,7 +70,7 @@ function MADLIB.Print( msg )
 			lineLength = lineLength + 1 + wordLength
 		else
 			table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
-			lineLength, lineTable = 0, {}
+			lineLength, lineTable = 0, { word }
 		end
 	end
 	if lineLength > 0 then
@@ -105,7 +105,7 @@ function MADLIB.AskForTerm()
 	local termType = MADLIB_Data[MADLIB_game.index].terms[termIndex]
 	local termPre = string.find( termType, "^[aAeEiIoOuU]" ) and "an" or "a"
 	MADLIB_game.voteTerms = { ["voteAt"] = time()+MADLIB.submitTermTimelimit, ["terms"] = {} }
-	MADLIB.Print( string.format( "Please give me %s %s. You have %d seconds to submit an answer.", termPre, termType, MADLIB.submitTermTimelimit ) )
+	MADLIB.Print( string.format( "Please give me %s %s. Reminder to start your responses with \"ml: \" (no quotes).", termPre, termType ) )
 end
 function MADLIB.GetSubmission( term )
 	-- print( "GetSubmission( "..term.." )" )
