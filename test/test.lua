@@ -127,7 +127,7 @@ function test.test_full_terms()
 		["started"] = time() - 31,
 	}
 	MADLIB.OnUpdate()
-	print( chatLog[#chatLog].msg )
+	assertEquals( "Adjective: A, Noun: N.", chatLog[#chatLog].msg )
 	assertIsNil( MADLIB_game )
 
 end

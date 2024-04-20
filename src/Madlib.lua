@@ -28,30 +28,29 @@ function MADLIB.OnLoad()
 	MadlibFrame:RegisterEvent( "CHAT_MSG_GUILD" )
 end
 function MADLIB.OnUpdate()
-	print( "OnUpdate() @"..time() )
+	-- print( "OnUpdate() @"..time() )
 	if MADLIB_game and MADLIB_game.stopped then
 		MADLIB_game = nil
 	end
 	if MADLIB_game then  -- only need to do something here
-		print( "Game Active" )
-
+		-- print( "Game Active" )
 		if MADLIB_game.voteTerms then
-			print( "Collecting terms" )
+			-- print( "Collecting terms" )
 			if MADLIB_game.voteTerms.voteAt and MADLIB_game.voteTerms.voteAt <= time() then
-				print( "Vote for terms" )
+				-- print( "Vote for terms" )
 				MADLIB.VoteForTerms()
 			end
 			if MADLIB_game.voteTerms.closeAt and MADLIB_game.voteTerms.closeAt <= time() then
-				print( "ResolveVotes" )
+				-- print( "ResolveVotes" )
 				MADLIB.ResolveVotes()
 			end
 		else
-			print( "Not collecting terms" )
+			-- print( "Not collecting terms" )
 			if #MADLIB_game.terms < #MADLIB_Data[MADLIB_game.index].terms then
-				print( "Need a term" )
+				-- print( "Need a term" )
 				MADLIB.AskForTerm()
 			else
-				print( "All terms collected, PUBLISH" )
+				-- print( "All terms collected, PUBLISH" )
 				MADLIB.Publish()
 			end
 		end
@@ -114,7 +113,7 @@ function MADLIB.VoteForTerms()
 		MADLIB_game.voteTerms.terms[term] = 0
 	end
 	if mapCount == 0 then
-		print( "WHAT DO I DO?" )
+		print( "WHAT DO I DO? There are no terms for the current collection." )
 		MADLIB.Print( string.format( "Stopping Madlib #%d with %d/%d terms.",
 				MADLIB_game.index, #MADLIB_game.terms, #MADLIB_Data[MADLIB_game.index].terms
 		) )
@@ -145,12 +144,11 @@ function MADLIB.ResolveVotes()
 	for k,v in pairs( MADLIB_game.voteTerms.terms ) do
 		termCount = termCount + 1
 	end
-	print( "I have "..termCount.." terms to vote on." )
+	-- print( "I have "..termCount.." terms to vote on." )
 
 	if termCount == 0 then
 		MADLIB.AskForTerm()
 	elseif termCount == 1 then
-		print( "1, just 1" )
 		table.insert( MADLIB_game.terms, MADLIB_game.voteTerms.map[1] )
 		MADLIB_game.voteTerms = nil
 	else
@@ -163,7 +161,7 @@ function MADLIB.ResolveVotes()
 		end
 		if winningTerm then
 			table.insert( MADLIB_game.terms, winningTerm )
-			print( "WinningTerm: "..winningTerm.." with votes: "..winningVoteCount )
+			-- print( "WinningTerm: "..winningTerm.." with votes: "..winningVoteCount )
 		end
 		MADLIB_game.voteTerms = nil
 	end
