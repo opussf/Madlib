@@ -115,9 +115,14 @@ function MADLIB.VoteForTerms()
 end
 function MADLIB.ResolveVotes()
 	print( "ResolveVotes" )
-	if #MADLIB_game.voteTerms.map == 0 then
+	local termCount = 0
+	for k,v in pairs( MADLIB_game.voteTerms.terms ) do
+		termCount = termCount + 1
+	end
+
+	if termCount == 0 then
 		MADLIB.AskForTerm()
-	elseif #MADLIB_game.voteTerms.map == 1 then
+	elseif termCount == 1 then
 		table.insert( MADLIB_game.terms, MADLIB_game.voteTerms.map[1] )
 		MADLIB_game.voteTerms = nil
 	else
