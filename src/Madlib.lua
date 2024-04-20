@@ -29,8 +29,12 @@ function MADLIB.OnLoad()
 end
 function MADLIB.OnUpdate()
 	print( "OnUpdate() @"..time() )
+	if MADLIB_game and MADLIB_game.stopped then
+		MADLIB_game = nil
+	end
 	if MADLIB_game then  -- only need to do something here
 		print( "Game Active" )
+
 		if MADLIB_game.voteTerms then
 			print( "Collecting terms" )
 			if MADLIB_game.voteTerms.voteAt and MADLIB_game.voteTerms.voteAt <= time() then
@@ -41,7 +45,6 @@ function MADLIB.OnUpdate()
 				print( "ResolveVotes" )
 				MADLIB.ResolveVotes()
 			end
-
 		else
 			print( "Not collecting terms" )
 			if #MADLIB_game.terms < #MADLIB_Data[MADLIB_game.index].terms then
@@ -75,7 +78,7 @@ function MADLIB.StartGame( param )
 end
 
 function MADLIB.AskForTerm()
-	print( "AskForTerm()" )
+	-- print( "AskForTerm()" )
 	local termIndex = #MADLIB_game.terms + 1
 	local termType = MADLIB_Data[MADLIB_game.index].terms[termIndex]
 	local termPre = string.find( termType, "^[aAeEiIoOuU]" ) and "an" or "a"
@@ -83,10 +86,10 @@ function MADLIB.AskForTerm()
 	MADLIB.Print( string.format( "Please give me %s %s. You have %d seconds to submit an answer.", termPre, termType, MADLIB.submitTermTimelimit ) )
 end
 function MADLIB.GetSubmission( term )
-	print( "GetSubmission( "..term.." )" )
+	-- print( "GetSubmission( "..term.." )" )
 	-- really generic, context inputs
 	if MADLIB_game.voteTerms then
-		print("I have voteTerms")
+		-- print("I have voteTerms")
 		if MADLIB_game.voteTerms.map then
 			print("I have voteTerms.map")
 			voteVal = tonumber( term )
@@ -101,18 +104,25 @@ function MADLIB.GetSubmission( term )
 	end
 end
 function MADLIB.VoteForTerms()
-	print( "VoteForTerms()" )
+	-- print( "VoteForTerms()" )
 	MADLIB_game.voteTerms.voteAt = nil   -- we are now voting
 	MADLIB_game.voteTerms.map = {}
+	local mapCount = 0
 	for term, _ in pairs( MADLIB_game.voteTerms.terms ) do
-		print( term, _ )
 		table.insert( MADLIB_game.voteTerms.map, term )
+		mapCount = mapCount + 1
 		MADLIB_game.voteTerms.terms[term] = 0
 	end
-	if #MADLIB_game.voteTerms.map == 1 then
-		print( "There is 1 item to vote on." )
+	if mapCount == 0 then
+		print( "WHAT DO I DO?" )
+		MADLIB.Print( string.format( "Stopping Madlib #%d with %d/%d terms.",
+				MADLIB_game.index, #MADLIB_game.terms, #MADLIB_Data[MADLIB_game.index].terms
+		) )
+		MADLIB_game.stopped = true
+	elseif mapCount == 1 then
+		-- print( "There is 1 item to vote on." )
 		MADLIB_game.voteTerms.closeAt = time()-1
-	elseif #MADLIB_game.voteTerms.map > 1 then
+	elseif mapCount > 1 then
 		print( "There are multiple items to vote on." )
 		MADLIB_game.voteTerms.voteStrTable = {}
 		for i, t in ipairs( MADLIB_game.voteTerms.map ) do
@@ -130,7 +140,7 @@ function MADLIB.VoteForTerms()
 	end
 end
 function MADLIB.ResolveVotes()
-	print( "ResolveVotes()" )
+	-- print( "ResolveVotes()" )
 	local termCount = 0
 	for k,v in pairs( MADLIB_game.voteTerms.terms ) do
 		termCount = termCount + 1
@@ -140,6 +150,7 @@ function MADLIB.ResolveVotes()
 	if termCount == 0 then
 		MADLIB.AskForTerm()
 	elseif termCount == 1 then
+		print( "1, just 1" )
 		table.insert( MADLIB_game.terms, MADLIB_game.voteTerms.map[1] )
 		MADLIB_game.voteTerms = nil
 	else
@@ -174,9 +185,9 @@ MADLIB.commandList = {
 
 function MADLIB.CHAT_MSG_GUILD(...)
 	_, msg, player, language, _, _, other = ...
-	print( msg )
+	-- print( msg )
 	s, e, cmd, param = string.find( string.lower( msg ), "^ml: *([^ ]+) *([^ ]*)" )
-	print( s, e, cmd, param )
+	-- print( s, e, cmd, param )
 	if s then
 		if MADLIB.commandList[cmd] and MADLIB.commandList[cmd].func then
 			MADLIB.commandList[cmd].func( param )

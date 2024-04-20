@@ -18,60 +18,75 @@ function test.before()
 end
 function test.after()
 end
-function test.notest_start_lower()
+function test.test_start_lower()
 	MADLIB.CHAT_MSG_GUILD( "", "ml: start", "user1" )
 	assertTrue( MADLIB_game, "game table should be created." )
 	assertEquals( 1, MADLIB_game.index, "game index should be 1." )
 	assertTrue( MADLIB_game.terms, "game terms should be created." )
 	assertEquals( time(), MADLIB_game.started, "game start should be set.")
 end
-function test.notest_start_upper()
+function test.test_start_upper()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START", "user1" )
 	assertTrue( MADLIB_game.terms, "game terms should be created." )
 end
-function test.notest_start_specific()
+function test.test_start_specific()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
 	assertTrue( MADLIB_game.terms, "game terms should be created." )
 end
-function test.notest_give_adjective_1()
+function test.test_give_adjective_1()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
+	MADLIB.OnUpdate()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: broken", "user1" )
 	assertTrue( MADLIB_game.voteTerms.terms, "game terms should be created." )
 	assertTrue( MADLIB_game.voteTerms.terms["broken"] )
 end
-function test.notest_give_adjective_noSpace()
+function test.test_give_adjective_noSpace()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
 	MADLIB.OnUpdate()
 	MADLIB.CHAT_MSG_GUILD( "", "ML:broken", "user1" )
-	MADLIB.OnUpdate()
 	assertTrue( MADLIB_game.voteTerms.terms, "game terms should be created." )
 	assertTrue( MADLIB_game.voteTerms.terms["broken"] )
 end
-function test.notest_1_term_timeOut_onupdate()
+function test.test_0_term_timeOut_onupdate()
 	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
-		["started"] = time() - 31,
+		["started"] = time() - 41,
 		["voteTerms"] = {
-			["started"] = time() - 31,
+			["voteAt"] = time() - 41,
+			["terms"] = {
+			},
+		}
+	}
+	MADLIB.OnUpdate()
+	MADLIB.OnUpdate()
+	assertIsNil( MADLIB_game )
+end
+function test.test_1_term_timeOut_onupdate()
+	MADLIB_game = {
+		["index"] = 1,
+		["terms"] = {},
+		["started"] = time() - 41,
+		["voteTerms"] = {
+			["voteAt"] = time() - 41,
 			["terms"] = {
 				["broken"] = true,
 			},
 		}
 	}
 	MADLIB.OnUpdate()
-	assertEquals( time(), MADLIB_game.voteTerms.closeAt )
+	assertIsNil( MADLIB_game.voteTerms )
 	assertEquals( "broken", MADLIB_game.terms[1], "broken should be added to list." )
 end
-function test.notest_2_terms_timeOut_onupdate_voteStarted()
+function test.test_2_terms_timeOut_onupdate_voteStarted()
 	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
 		["started"] = time() - 31,
 		["voteTerms"] = {
-			["started"] = time() - 31,
+			["voteAt"] = time() - 31,
 			["terms"] = {
-				["broken"] = true,
+				["green"] = true,
 				["red"] = true,
 			},
 		}
@@ -85,29 +100,35 @@ function test.notest_2_terms_timeOut_onupdate_voteStarted()
 	end
 	MADLIB.CHAT_MSG_GUILD( "", "ml: "..voteVal, "user1" )
 	assertEquals( 1, MADLIB_game.voteTerms.terms.red, "red should have 1 vote." )
-	assertEquals( 0, MADLIB_game.voteTerms.terms.broken, "broken should have 0 votes." )
+	assertEquals( 0, MADLIB_game.voteTerms.terms.green, "green should have 0 votes." )
 end
-function test.notest_2_terms_timeOut_onupdate_voteStarted()
+function test.test_2_terms_timeOut_onupdate_voteStarted()
 	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
 		["started"] = time() - 31,
 		["voteTerms"] = {
-			["started"] = time() - 31,
-			["closeAt"] = time(),
+			["closeAt"] = time()-1,
 			["map"] = { "broken", "red", "persistent" },
 			["terms"] = {
-				["broken"] = 0,
-				["red"] = 0,
-				["persistent"] = 1,
+				["yellow"] = 0,
+				["red"] = 1,
+				["persistent"] = 0,
 			},
 		},
 	}
 	MADLIB.OnUpdate()
-	-- assertEquals( 1, MADLIB_game.voteTerms.terms.red, "red should have 1 vote." )
-	-- assertEquals( 0, MADLIB_game.voteTerms.terms.broken, "broken should have 0 votes." )
+	assertEquals( "red", MADLIB_game.terms[1], "red should be choosen." )
 end
-function test.notest_full_terms()
+function test.test_full_terms()
+	MADLIB_game = {
+		["index"] = 1,
+		["terms"] = {"A","N"},
+		["started"] = time() - 31,
+	}
+	MADLIB.OnUpdate()
+	print( chatLog[#chatLog].msg )
+	assertIsNil( MADLIB_game )
 
 end
 function sorted_pairs( tableIn )
