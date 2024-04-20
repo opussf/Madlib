@@ -21,14 +21,18 @@ MADLIB_Data = {
 		["terms"] = { "Adjective", "Adjective", "Type of Bird", "Room in a House" }
 	}
 }
-MADLIB.submitTermTimelimit = 40
+MADLIB.submitTermTimelimit = 60
 MADLIB.voteTermTimeLimit = 40
+MADLIB.printQueue = {}
+MADLIB.lastPrint = 0
 
 function MADLIB.OnLoad()
 	MadlibFrame:RegisterEvent( "CHAT_MSG_GUILD" )
 end
 function MADLIB.OnUpdate()
-	-- print( "OnUpdate() @"..time() )
+	if #MADLIB.printQueue > 0 then
+		MADLIB.ProcessQueue()
+	end
 	if MADLIB_game and MADLIB_game.stopped then
 		MADLIB_game = nil
 	end
@@ -58,7 +62,26 @@ function MADLIB.OnUpdate()
 end
 
 function MADLIB.Print( msg )
-	SendChatMessage( msg, "GUILD", nil, nil )
+	local lineLength, wordLength, lineTable = 0, 0, {}
+	for word in string.gmatch( msg, "([^ ]+)" ) do
+		wordLength = string.len( word )
+		if lineLength + wordLength + 1 < 250 then
+			table.insert( lineTable, word )
+			lineLength = lineLength + 1 + wordLength
+		else
+			table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
+			lineLength, lineTable = 0, { word }
+		end
+	end
+	if lineLength > 0 then
+		table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
+	end
+end
+function MADLIB.ProcessQueue()
+	if MADLIB.printQueue and #MADLIB.printQueue > 0 and MADLIB.lastPrint + 1 < time() then
+		SendChatMessage( table.remove( MADLIB.printQueue, 1 ), "GUILD", nil, nil )
+		MADLIB.lastPrint = time()
+	end
 end
 
 function MADLIB.StartGame( param )
@@ -71,8 +94,7 @@ function MADLIB.StartGame( param )
 				["terms"] = {},
 				["started"] = time()
 		}
-		MADLIB.Print( "Hello, welcome to Guild Madlibs. Please start your responses with \"ml: \" (no quotes)." )
-		-- MADLIB.AskForTerm()
+		MADLIB.Print( "Hello, welcome to Guild Madlibs! Please start your responses with \"ml: \" (no quotes)." )
 	end
 end
 
@@ -82,7 +104,7 @@ function MADLIB.AskForTerm()
 	local termType = MADLIB_Data[MADLIB_game.index].terms[termIndex]
 	local termPre = string.find( termType, "^[aAeEiIoOuU]" ) and "an" or "a"
 	MADLIB_game.voteTerms = { ["voteAt"] = time()+MADLIB.submitTermTimelimit, ["terms"] = {} }
-	MADLIB.Print( string.format( "Please give me %s %s. You have %d seconds to submit an answer.", termPre, termType, MADLIB.submitTermTimelimit ) )
+	MADLIB.Print( string.format( "For term %d of %d, please give me %s %s.", termIndex, #MADLIB_Data[MADLIB_game.index].terms, termPre, termType ) )
 end
 function MADLIB.GetSubmission( term )
 	-- print( "GetSubmission( "..term.." )" )
@@ -90,9 +112,9 @@ function MADLIB.GetSubmission( term )
 	if MADLIB_game.voteTerms then
 		-- print("I have voteTerms")
 		if MADLIB_game.voteTerms.map then
-			print("I have voteTerms.map")
+			-- print("I have voteTerms.map")
 			voteVal = tonumber( term )
-			print( "voteVal: "..(voteVal or "nil" ) )
+			-- print( "voteVal: "..(voteVal or "nil" ) )
 			if voteVal then
 				MADLIB_game.voteTerms.terms[ MADLIB_game.voteTerms.map[voteVal] ] =
 						MADLIB_game.voteTerms.terms[ MADLIB_game.voteTerms.map[voteVal] ] + 1
@@ -113,16 +135,17 @@ function MADLIB.VoteForTerms()
 		MADLIB_game.voteTerms.terms[term] = 0
 	end
 	if mapCount == 0 then
-		print( "WHAT DO I DO? There are no terms for the current collection." )
-		MADLIB.Print( string.format( "Stopping Madlib #%d with %d/%d terms.",
-				MADLIB_game.index, #MADLIB_game.terms, #MADLIB_Data[MADLIB_game.index].terms
-		) )
-		MADLIB_game.stopped = true
+		-- let it get stuck
+		-- print( "WHAT DO I DO? There are no terms for the current collection." )
+		-- MADLIB.Print( string.format( "Stopping Madlib #%d with %d/%d terms.",
+		-- 		MADLIB_game.index, #MADLIB_game.terms, #MADLIB_Data[MADLIB_game.index].terms
+		-- ) )
+		-- MADLIB_game.stopped = true
 	elseif mapCount == 1 then
 		-- print( "There is 1 item to vote on." )
 		MADLIB_game.voteTerms.closeAt = time()-1
 	elseif mapCount > 1 then
-		print( "There are multiple items to vote on." )
+		-- print( "There are multiple items to vote on." )
 		MADLIB_game.voteTerms.voteStrTable = {}
 		for i, t in ipairs( MADLIB_game.voteTerms.map ) do
 			table.insert( MADLIB_game.voteTerms.voteStrTable, i.." - "..t )
@@ -171,8 +194,9 @@ function MADLIB.ResolveVotes()
 	-- end
 end
 function MADLIB.Publish()
+	MADLIB.Print( "<Processing Story.>" )
 	MADLIB.Print( string.format( MADLIB_Data[MADLIB_game.index].story,
-			table.unpack( MADLIB_game.terms )
+			unpack( MADLIB_game.terms )
 	) )
 	MADLIB_game = nil
 end
@@ -184,21 +208,15 @@ MADLIB.commandList = {
 function MADLIB.CHAT_MSG_GUILD(...)
 	_, msg, player, language, _, _, other = ...
 	-- print( msg )
-	s, e, cmd, param = string.find( string.lower( msg ), "^ml: *([^ ]+) *([^ ]*)" )
+	s, e, cmd, param = string.find( string.lower( msg ), "^ml[:;] *([^ ]+) *([^ ]*)" )
 	-- print( s, e, cmd, param )
 	if s then
 		if MADLIB.commandList[cmd] and MADLIB.commandList[cmd].func then
 			MADLIB.commandList[cmd].func( param )
 		else
-			MADLIB.GetSubmission( cmd )
+			s, e, submission = string.find( string.lower( msg ), "^ml[:;] *(.+)" )
+			-- print( s, e, submission )
+			MADLIB.GetSubmission( submission )
 		end
 	end
-
-
-
-
-	--SendChatMessage( STEPS.GetPostString(), chatChannel, nil, toWhom )
-
 end
-
--- string.format( "%s %s", table.unpack( t ) )

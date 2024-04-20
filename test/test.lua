@@ -15,6 +15,8 @@ function test.before()
 		{	["story"] = "Adjective: %s, Noun: %s.",
 			["terms"] = { "Adjective", "Noun" }, },
 	}
+	MADLIB.lastPrint = 0
+	MADLIB.printQueue = {}
 end
 function test.after()
 end
@@ -47,7 +49,7 @@ function test.test_give_adjective_noSpace()
 	assertTrue( MADLIB_game.voteTerms.terms, "game terms should be created." )
 	assertTrue( MADLIB_game.voteTerms.terms["broken"] )
 end
-function test.test_0_term_timeOut_onupdate()
+function test.longer_a_test_0_term_timeOut_onupdate()
 	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
@@ -127,9 +129,25 @@ function test.test_full_terms()
 		["started"] = time() - 31,
 	}
 	MADLIB.OnUpdate()
+	MADLIB.OnUpdate()
+	MADLIB.lastPrint = 0
+	MADLIB.OnUpdate()
 	assertEquals( "Adjective: A, Noun: N.", chatLog[#chatLog].msg )
 	assertIsNil( MADLIB_game )
-
+end
+function test.test_term_multiple_words_2()
+	MADLIB_game = {
+		["index"] = 1,
+		["terms"] = {},
+		["started"] = time(),
+		["voteTerms"] = {
+			["voteAt"] = time() + 40,
+			["terms"] = {
+			},
+		}
+	}
+	MADLIB.CHAT_MSG_GUILD( "", "ml:green, and blue", "user1" )
+	assertTrue( MADLIB_game.voteTerms.terms["green, and blue"] )
 end
 function sorted_pairs( tableIn )
 	local keys = {}
