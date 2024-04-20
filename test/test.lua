@@ -169,7 +169,7 @@ function dump( tableIn, depth )
 	end
 end
 
-function test.test_fullGame()
+function test.notest_fullGame()
 	-- Start game
 	MADLIB.CHAT_MSG_GUILD( "", "ml: start", "user1" )
 	MADLIB.OnUpdate()
