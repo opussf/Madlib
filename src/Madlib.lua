@@ -214,7 +214,7 @@ function MADLIB.CHAT_MSG_GUILD(...)
 		if MADLIB.commandList[cmd] and MADLIB.commandList[cmd].func then
 			MADLIB.commandList[cmd].func( param )
 		else
-			MADLIB.GetSubmission( cmd )
+			MADLIB.GetSubmission( cmd..( param and " "..param or "" ) )
 		end
 	end
 
