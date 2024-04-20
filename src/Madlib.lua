@@ -94,8 +94,7 @@ function MADLIB.StartGame( param )
 				["terms"] = {},
 				["started"] = time()
 		}
-		MADLIB.Print( "Hello, welcome to Guild Madlibs. Please start your responses with \"ml: \" (no quotes)." )
-		-- MADLIB.AskForTerm()
+		MADLIB.Print( "Hello, welcome to Guild Madlibs." )
 	end
 end
 
@@ -219,12 +218,4 @@ function MADLIB.CHAT_MSG_GUILD(...)
 			MADLIB.GetSubmission( submission )
 		end
 	end
-
-
-
-
-	--SendChatMessage( STEPS.GetPostString(), chatChannel, nil, toWhom )
-
 end
-
--- string.format( "%s %s", table.unpack( t ) )
