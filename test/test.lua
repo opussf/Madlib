@@ -132,7 +132,20 @@ function test.test_full_terms()
 	MADLIB.OnUpdate()
 	assertEquals( "Adjective: A, Noun: N.", chatLog[#chatLog].msg )
 	assertIsNil( MADLIB_game )
-
+end
+function test.test_term_multiple_words_2()
+	MADLIB_game = {
+		["index"] = 1,
+		["terms"] = {},
+		["started"] = time(),
+		["voteTerms"] = {
+			["voteAt"] = time() + 40,
+			["terms"] = {
+			},
+		}
+	}
+	MADLIB.CHAT_MSG_GUILD( "", "ml:green, and blue", "user1" )
+	assertTrue( MADLIB_game.voteTerms.terms["green, and blue"] )
 end
 function sorted_pairs( tableIn )
 	local keys = {}

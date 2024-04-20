@@ -214,7 +214,9 @@ function MADLIB.CHAT_MSG_GUILD(...)
 		if MADLIB.commandList[cmd] and MADLIB.commandList[cmd].func then
 			MADLIB.commandList[cmd].func( param )
 		else
-			MADLIB.GetSubmission( cmd..( param and " "..param or "" ) )
+			s, e, submission = string.find( string.lower( msg ), "^ml: *(.+)" )
+			-- print( s, e, submission )
+			MADLIB.GetSubmission( submission )
 		end
 	end
 
