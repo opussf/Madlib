@@ -23,12 +23,16 @@ MADLIB_Data = {
 }
 MADLIB.submitTermTimelimit = 40
 MADLIB.voteTermTimeLimit = 40
+MADLIB.printQueue = {}
+MADLIB.lastPrint = 0
 
 function MADLIB.OnLoad()
 	MadlibFrame:RegisterEvent( "CHAT_MSG_GUILD" )
 end
 function MADLIB.OnUpdate()
-	-- print( "OnUpdate() @"..time() )
+	if #MADLIB.printQueue > 0 then
+		MADLIB.ProcessQueue()
+	end
 	if MADLIB_game and MADLIB_game.stopped then
 		MADLIB_game = nil
 	end
@@ -58,7 +62,26 @@ function MADLIB.OnUpdate()
 end
 
 function MADLIB.Print( msg )
-	SendChatMessage( msg, "GUILD", nil, nil )
+	local lineLength, wordLength, lineTable = 0, 0, {}
+	for word in string.gmatch( msg, "([^ ]+)" ) do
+		wordLength = string.len( word )
+		if lineLength + wordLength + 1 < 250 then
+			table.insert( lineTable, word )
+			lineLength = lineLength + 1 + wordLength
+		else
+			table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
+			lineLength, lineTable = 0, {}
+		end
+	end
+	if lineLength > 0 then
+		table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
+	end
+end
+function MADLIB.ProcessQueue()
+	if MADLIB.printQueue and #MADLIB.printQueue > 0 and MADLIB.lastPrint + 1 < time() then
+		SendChatMessage( table.remove( MADLIB.printQueue, 1 ), "GUILD", nil, nil )
+		MADLIB.lastPrint = time()
+	end
 end
 
 function MADLIB.StartGame( param )
@@ -113,11 +136,12 @@ function MADLIB.VoteForTerms()
 		MADLIB_game.voteTerms.terms[term] = 0
 	end
 	if mapCount == 0 then
-		print( "WHAT DO I DO? There are no terms for the current collection." )
-		MADLIB.Print( string.format( "Stopping Madlib #%d with %d/%d terms.",
-				MADLIB_game.index, #MADLIB_game.terms, #MADLIB_Data[MADLIB_game.index].terms
-		) )
-		MADLIB_game.stopped = true
+		-- let it get stuck
+		-- print( "WHAT DO I DO? There are no terms for the current collection." )
+		-- MADLIB.Print( string.format( "Stopping Madlib #%d with %d/%d terms.",
+		-- 		MADLIB_game.index, #MADLIB_game.terms, #MADLIB_Data[MADLIB_game.index].terms
+		-- ) )
+		-- MADLIB_game.stopped = true
 	elseif mapCount == 1 then
 		-- print( "There is 1 item to vote on." )
 		MADLIB_game.voteTerms.closeAt = time()-1
@@ -172,7 +196,7 @@ function MADLIB.ResolveVotes()
 end
 function MADLIB.Publish()
 	MADLIB.Print( string.format( MADLIB_Data[MADLIB_game.index].story,
-			table.unpack( MADLIB_game.terms )
+			unpack( MADLIB_game.terms )
 	) )
 	MADLIB_game = nil
 end
