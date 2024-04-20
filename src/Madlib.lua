@@ -22,7 +22,7 @@ MADLIB_Data = {
 	}
 }
 MADLIB.submitTermTimelimit = 60
-MADLIB.voteTermTimeLimit = 60
+MADLIB.voteTermTimeLimit = 40
 MADLIB.printQueue = {}
 MADLIB.lastPrint = 0
 
@@ -94,7 +94,7 @@ function MADLIB.StartGame( param )
 				["terms"] = {},
 				["started"] = time()
 		}
-		MADLIB.Print( "Hello, welcome to Guild Madlibs." )
+		MADLIB.Print( "Hello, welcome to Guild Madlibs! Please start your responses with \"ml: \" (no quotes)." )
 	end
 end
 
@@ -104,7 +104,7 @@ function MADLIB.AskForTerm()
 	local termType = MADLIB_Data[MADLIB_game.index].terms[termIndex]
 	local termPre = string.find( termType, "^[aAeEiIoOuU]" ) and "an" or "a"
 	MADLIB_game.voteTerms = { ["voteAt"] = time()+MADLIB.submitTermTimelimit, ["terms"] = {} }
-	MADLIB.Print( string.format( "Please give me %s %s. Reminder to start your responses with \"ml: \" (no quotes).", termPre, termType ) )
+	MADLIB.Print( string.format( "For term %d of %d, please give me %s %s.", termIndex, #MADLIB_Data[MADLIB_game.index].terms, termPre, termType ) )
 end
 function MADLIB.GetSubmission( term )
 	-- print( "GetSubmission( "..term.." )" )
