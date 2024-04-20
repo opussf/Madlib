@@ -9,34 +9,42 @@ test.outFileName = "testOut.xml"
 ParseTOC( "../src/Madlib.toc" )
 
 function test.before()
-	MADLIB.game = nil
+	MADLIB_game = nil
 	chatLog = {}
 end
 function test.after()
 end
 function test.test_start_lower()
 	MADLIB.CHAT_MSG_GUILD( "", "ml: start", "user1" )
-	assertTrue( MADLIB.game, "game table should be created." )
-	assertEquals( 1, MADLIB.game.index, "game index should be 1." )
-	assertTrue( MADLIB.game.terms, "game terms should be created." )
-	assertEquals( time(), MADLIB.game.started, "game start should be set.")
+	assertTrue( MADLIB_game, "game table should be created." )
+	assertEquals( 1, MADLIB_game.index, "game index should be 1." )
+	assertTrue( MADLIB_game.terms, "game terms should be created." )
+	assertEquals( time(), MADLIB_game.started, "game start should be set.")
 end
 function test.test_start_upper()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START", "user1" )
-	assertTrue( MADLIB.game.terms, "game terms should be created." )
+	assertTrue( MADLIB_game.terms, "game terms should be created." )
 end
 function test.test_start_specific()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
-	assertTrue( MADLIB.game.terms, "game terms should be created." )
+	assertTrue( MADLIB_game.terms, "game terms should be created." )
 end
 function test.test_give_adjective_1()
 	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
 	MADLIB.CHAT_MSG_GUILD( "", "ML: broken", "user1" )
-	assertTrue( MADLIB.game.voteTerms.terms, "game terms should be created." )
-	assertTrue( MADLIB.game.voteTerms.terms["broken"] )
+	assertTrue( MADLIB_game.voteTerms.terms, "game terms should be created." )
+	assertTrue( MADLIB_game.voteTerms.terms["broken"] )
 end
-function test.test_1_term_timeOut_onupdate()
-	MADLIB.game = {
+function test.test_give_adjective_noSpace()
+	MADLIB.CHAT_MSG_GUILD( "", "ML: START 1", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ML:broken", "user1" )
+	MADLIB.OnUpdate()
+	assertTrue( MADLIB_game.voteTerms.terms, "game terms should be created." )
+	assertTrue( MADLIB_game.voteTerms.terms["broken"] )
+end
+function test.notest_1_term_timeOut_onupdate()
+	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
 		["started"] = time() - 31,
@@ -48,11 +56,11 @@ function test.test_1_term_timeOut_onupdate()
 		}
 	}
 	MADLIB.OnUpdate()
-	assertEquals( time(), MADLIB.game.voteTerms.closeAt )
-	assertEquals( "broken", MADLIB.game.terms[1], "broken should be added to list." )
+	assertEquals( time(), MADLIB_game.voteTerms.closeAt )
+	assertEquals( "broken", MADLIB_game.terms[1], "broken should be added to list." )
 end
 function test.test_2_terms_timeOut_onupdate_voteStarted()
-	MADLIB.game = {
+	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
 		["started"] = time() - 31,
@@ -66,17 +74,17 @@ function test.test_2_terms_timeOut_onupdate_voteStarted()
 	}
 	MADLIB.OnUpdate()
 	voteVal = 0
-	for i, t in ipairs( MADLIB.game.voteTerms.map ) do
+	for i, t in ipairs( MADLIB_game.voteTerms.map ) do
 		if t == "red" then
 			voteVal = i
 		end
 	end
 	MADLIB.CHAT_MSG_GUILD( "", "ml: "..voteVal, "user1" )
-	assertEquals( 1, MADLIB.game.voteTerms.terms.red, "red should have 1 vote." )
-	assertEquals( 0, MADLIB.game.voteTerms.terms.broken, "broken should have 0 votes." )
+	assertEquals( 1, MADLIB_game.voteTerms.terms.red, "red should have 1 vote." )
+	assertEquals( 0, MADLIB_game.voteTerms.terms.broken, "broken should have 0 votes." )
 end
 function test.test_2_terms_timeOut_onupdate_voteStarted()
-	MADLIB.game = {
+	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},
 		["started"] = time() - 31,
@@ -92,11 +100,11 @@ function test.test_2_terms_timeOut_onupdate_voteStarted()
 		},
 	}
 	MADLIB.OnUpdate()
-	-- assertEquals( 1, MADLIB.game.voteTerms.terms.red, "red should have 1 vote." )
-	-- assertEquals( 0, MADLIB.game.voteTerms.terms.broken, "broken should have 0 votes." )
+	-- assertEquals( 1, MADLIB_game.voteTerms.terms.red, "red should have 1 vote." )
+	-- assertEquals( 0, MADLIB_game.voteTerms.terms.broken, "broken should have 0 votes." )
 end
 
-function test.notest_fullGame()
+function test.test_fullGame()
 	-- Start game
 	MADLIB.CHAT_MSG_GUILD( "", "ml: start", "user1" )
 	for _, s in ipairs( chatLog ) do
