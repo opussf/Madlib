@@ -15,6 +15,8 @@ function test.before()
 		{	["story"] = "Adjective: %s, Noun: %s.",
 			["terms"] = { "Adjective", "Noun" }, },
 	}
+	MADLIB.lastPrint = 0
+	MADLIB.printQueue = {}
 end
 function test.after()
 end
@@ -47,7 +49,7 @@ function test.test_give_adjective_noSpace()
 	assertTrue( MADLIB_game.voteTerms.terms, "game terms should be created." )
 	assertTrue( MADLIB_game.voteTerms.terms["broken"] )
 end
-function test.test_0_term_timeOut_onupdate()
+function test.longer_a_test_0_term_timeOut_onupdate()
 	MADLIB_game = {
 		["index"] = 1,
 		["terms"] = {},

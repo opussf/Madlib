@@ -113,9 +113,9 @@ function MADLIB.GetSubmission( term )
 	if MADLIB_game.voteTerms then
 		-- print("I have voteTerms")
 		if MADLIB_game.voteTerms.map then
-			print("I have voteTerms.map")
+			-- print("I have voteTerms.map")
 			voteVal = tonumber( term )
-			print( "voteVal: "..(voteVal or "nil" ) )
+			-- print( "voteVal: "..(voteVal or "nil" ) )
 			if voteVal then
 				MADLIB_game.voteTerms.terms[ MADLIB_game.voteTerms.map[voteVal] ] =
 						MADLIB_game.voteTerms.terms[ MADLIB_game.voteTerms.map[voteVal] ] + 1
