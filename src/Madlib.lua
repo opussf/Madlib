@@ -62,19 +62,21 @@ function MADLIB.OnUpdate()
 end
 
 function MADLIB.Print( msg )
-	local lineLength, wordLength, lineTable = 0, 0, {}
-	for word in string.gmatch( msg, "([^ ]+)" ) do
-		wordLength = string.len( word )
-		if lineLength + wordLength + 1 < 250 then
-			table.insert( lineTable, word )
-			lineLength = lineLength + 1 + wordLength
-		else
-			table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
-			lineLength, lineTable = 0, { word }
+	if msg then
+		local lineLength, wordLength, lineTable = 0, 0, {}
+		for word in string.gmatch( msg, "([^ ]+)" ) do
+			wordLength = string.len( word )
+			if lineLength + wordLength + 1 < 250 then
+				table.insert( lineTable, word )
+				lineLength = lineLength + 1 + wordLength
+			else
+				table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
+				lineLength, lineTable = 0, { word }
+			end
 		end
-	end
-	if lineLength > 0 then
-		table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
+		if lineLength > 0 then
+			table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
+		end
 	end
 end
 function MADLIB.ProcessQueue()
@@ -97,7 +99,6 @@ function MADLIB.StartGame( param )
 		MADLIB.Print( "Hello, welcome to Guild Madlibs! Please start your responses with \"ml: \" (no quotes)." )
 	end
 end
-
 function MADLIB.AskForTerm()
 	-- print( "AskForTerm()" )
 	local termIndex = #MADLIB_game.terms + 1
@@ -106,10 +107,10 @@ function MADLIB.AskForTerm()
 	MADLIB_game.voteTerms = { ["voteAt"] = time()+MADLIB.submitTermTimelimit, ["terms"] = {} }
 	MADLIB.Print( string.format( "For term %d of %d, please give me %s %s.", termIndex, #MADLIB_Data[MADLIB_game.index].terms, termPre, termType ) )
 end
-function MADLIB.GetSubmission( term )
-	-- print( "GetSubmission( "..term.." )" )
+function MADLIB.ProcessInput( term )
+	-- print( "ProcessInput( "..term.." )" )
 	-- really generic, context inputs
-	if MADLIB_game.voteTerms then
+	if MADLIB_game and MADLIB_game.voteTerms then
 		-- print("I have voteTerms")
 		if MADLIB_game.voteTerms.map then
 			-- print("I have voteTerms.map")
@@ -121,6 +122,43 @@ function MADLIB.GetSubmission( term )
 			end
 		else
 			MADLIB_game.voteTerms.terms[term] = true
+		end
+	end
+	if MADLIB_newgame then
+		-- print( "New game" )
+		local newStory = {}
+		for word in string.gmatch( term, "([^ ]+)" ) do
+			-- print( word )
+			local isTerm, _, newterm = string.find( word, "^%{(.+)}[.]?$" )
+			if isTerm then
+				-- print( "\t"..newterm.." is a term." )
+				word = string.gsub( word, "{"..newterm.."}", "%%s" )
+				newterm = string.gsub( newterm, "^%l", string.upper )
+				table.insert( MADLIB_newgame.terms, newterm )
+				-- print( word )
+			end
+			if MADLIB_newgame.sentenceWordCount == 0 then
+				word = string.gsub( word, "^%l", string.upper )
+			end
+			table.insert( newStory, word )
+			MADLIB_newgame.sentenceWordCount = MADLIB_newgame.sentenceWordCount + 1
+			if string.find( word, "[.][/]*$" ) then
+				-- print( "End of sentence." )
+				MADLIB_newgame.sentenceWordCount = 0
+			end
+		end
+		MADLIB_newgame.story = MADLIB_newgame.story..(string.len(MADLIB_newgame.story) > 0 and " " or "")..table.concat( newStory, " " )
+
+		local continue = string.find( MADLIB_newgame.story, "[ ]*/$" )
+		if continue then
+			-- print( "\t---- Continue. "..MADLIB_newgame.story )
+			MADLIB_newgame.story = string.sub( MADLIB_newgame.story, 1, continue-1 )
+		else
+			-- print( "\t---- DON'T Continue.")
+			MADLIB_newgame.sentenceWordCount = nil
+			table.insert( MADLIB_Data, MADLIB_newgame )
+			MADLIB_newgame = nil
+			MADLIB.Print( "New madlib added as story: "..#MADLIB_Data )
 		end
 	end
 end
@@ -194,15 +232,21 @@ function MADLIB.ResolveVotes()
 	-- end
 end
 function MADLIB.Publish()
-	MADLIB.Print( "<Processing Story.>" )
+	MADLIB.Print( "<Processing Story>" )
 	MADLIB.Print( string.format( MADLIB_Data[MADLIB_game.index].story,
 			unpack( MADLIB_game.terms )
 	) )
 	MADLIB_game = nil
 end
 
+function MADLIB.AddGame()
+	MADLIB_newgame = { ["terms"] = {}, ["story"] = "", ["sentenceWordCount"] = 0}
+	MADLIB.Print( "Enter the new madlib as \"ml: Hello {name}.\" Use a trailing / to allow an additional line." )
+end
+
 MADLIB.commandList = {
 	["start"] = { ["func"] = MADLIB.StartGame },
+	["add"] = { ["func"] = MADLIB.AddGame }
 }
 
 function MADLIB.CHAT_MSG_GUILD(...)
@@ -216,7 +260,7 @@ function MADLIB.CHAT_MSG_GUILD(...)
 		else
 			s, e, submission = string.find( string.lower( msg ), "^ml[:;] *(.+)" )
 			-- print( s, e, submission )
-			MADLIB.GetSubmission( submission )
+			MADLIB.ProcessInput( submission )
 		end
 	end
 end

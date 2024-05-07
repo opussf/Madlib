@@ -10,10 +10,12 @@ ParseTOC( "../src/Madlib.toc" )
 
 function test.before()
 	MADLIB_game = nil
+	MADLIB_newgame = nil
 	chatLog = {}
 	MADLIB_Data = {
 		{	["story"] = "Adjective: %s, Noun: %s.",
-			["terms"] = { "Adjective", "Noun" }, },
+			["terms"] = { "Adjective", "Noun" },
+		},
 	}
 	MADLIB.lastPrint = 0
 	MADLIB.printQueue = {}
@@ -149,6 +151,83 @@ function test.test_term_multiple_words_2()
 	MADLIB.CHAT_MSG_GUILD( "", "ml:green, and blue", "user1" )
 	assertTrue( MADLIB_game.voteTerms.terms["green, and blue"] )
 end
+------  Add
+function test.test_add_start()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
+	assertTrue( MADLIB_newgame )
+	assertIsNil( MADLIB_newgame.terms[1] )
+	assertEquals( "", MADLIB_newgame.story )
+end
+function test.test_add_start_message()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
+	MADLIB.OnUpdate()
+	dump( chatLog )
+	print( "---" )
+	assertEquals( "", chatLog[#chatLog].msg )
+end
+function test.test_add_oneline_story()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: There once was a {Noun} from {place}.", "user1" )
+	MADLIB.OnUpdate()
+	assertTrue( MADLIB_Data[2] )
+	assertEquals( "There once was a %s from %s.", MADLIB_Data[2].story )
+	dump( chatLog )
+end
+function test.test_add_oneline_twosentences()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: There once was a {Noun} from {place}. It was very {adjective}.", "user1" )
+	MADLIB.OnUpdate()
+	assertTrue( MADLIB_Data[2] )
+	assertEquals( "There once was a %s from %s. It was very %s.", MADLIB_Data[2].story )
+end
+function test.test_add_oneline_twosentences_no_tracking_var()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: There once was a {Noun} from {place}. It was very {adjective}.", "user1" )
+	MADLIB.OnUpdate()
+	assertTrue( MADLIB_Data[2] )
+	assertIsNil( MADLIB_Data[2].sentenceWordCount )
+end
+function test.test_add_oneline_terms()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: There once was a {Noun} from {place}.", "user1" )
+	MADLIB.OnUpdate()
+	assertIsNil( MADLIB_newgame )
+	assertEquals( "Noun", MADLIB_Data[2].terms[1] )
+	assertEquals( "Place", MADLIB_Data[2].terms[2] )
+end
+function test.test_add_twoline_story()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: Hello {name}. Please /", "" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: don't {verb} me./")
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: bye.", "" )
+	MADLIB.OnUpdate()
+	assertEquals( "Hello %s. Please don't %s me. Bye.", MADLIB_Data[2].story )
+end
+function test.test_add_twoline_terms()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: Hello {name}. Please /", "" )
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: don't {verb} me.")
+	MADLIB.OnUpdate()
+	assertEquals( "Verb", MADLIB_Data[2].terms[2] )
+end
+
 function sorted_pairs( tableIn )
 	local keys = {}
 	for k in pairs( tableIn ) do table.insert( keys, k ) end
