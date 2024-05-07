@@ -60,23 +60,20 @@ function MADLIB.OnUpdate()
 		end
 	end
 end
-
 function MADLIB.Print( msg )
-	if msg then
-		local lineLength, wordLength, lineTable = 0, 0, {}
-		for word in string.gmatch( msg, "([^ ]+)" ) do
-			wordLength = string.len( word )
-			if lineLength + wordLength + 1 < 250 then
-				table.insert( lineTable, word )
-				lineLength = lineLength + 1 + wordLength
-			else
-				table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
-				lineLength, lineTable = 0, { word }
-			end
-		end
-		if lineLength > 0 then
+	local lineLength, wordLength, lineTable = 0, 0, {}
+	for word in string.gmatch( msg, "([^ ]+)" ) do
+		wordLength = string.len( word )
+		if lineLength + wordLength + 1 < 250 then
+			table.insert( lineTable, word )
+			lineLength = lineLength + 1 + wordLength
+		else
 			table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
+			lineLength, lineTable = 0, { word }
 		end
+	end
+	if lineLength > 0 then
+		table.insert( MADLIB.printQueue, table.concat( lineTable, " " ) )
 	end
 end
 function MADLIB.ProcessQueue()
@@ -85,7 +82,6 @@ function MADLIB.ProcessQueue()
 		MADLIB.lastPrint = time()
 	end
 end
-
 function MADLIB.StartGame( param )
 	param = tonumber( param )
 	if MADLIB_game then
