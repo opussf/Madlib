@@ -244,13 +244,19 @@ function MADLIB.ListGames()
 		MADLIB.Print( string.format( "%i - %i terms. %s", i, #ml.terms, string.sub( ml.story, 1, 20 ) ) )
 	end
 end
+function MADLIB.Help()
+	MADLIB.Print( "MADLIB ("..MADLIB_MSG_VERSION..") Command list: ")
+	for k, s in pairs( MADLIB.commandList ) do
+		MADLIB.Print( "ml: "..k..(string.len(s.help[1]) > 0 and " "..s.help[1] or "").." -- "..s.help[2] )
+	end
+end
 
 MADLIB.commandList = {
-	["start"] = { ["func"] = MADLIB.StartGame },
-	["add"] = { ["func"] = MADLIB.AddGame },
-	["list"] = { ["func"] = MADLIB.ListGames },
+	["start"] = { ["func"] = MADLIB.StartGame, ["help"] = { "<madlib number>", "Start a madlib." } },
+	["add"] = { ["func"] = MADLIB.AddGame, ["help"] = { "", "Add a new madlib." } },
+	["list"] = { ["func"] = MADLIB.ListGames, ["help"] = {"", "List madlibs." } },
+	["help"] = { ["func"] = MADLIB.Help, ["help"] = { "", "This list." } },
 }
-
 function MADLIB.CHAT_MSG_GUILD(...)
 	_, msg, player, language, _, _, other = ...
 	-- print( msg )

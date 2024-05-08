@@ -231,8 +231,12 @@ function test.test_list_()
 	assertEquals( "MADLIB (@VERSION@) list:", MADLIB.printQueue[1] )
 	assertEquals( "1 - 2 terms. Adjective: %s, Noun:", MADLIB.printQueue[2] )
 end
-
--- Adjective: %s, Noun: %s.
+---- Help
+function test.test_help()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: help", "user1" )
+	assertEquals( "MADLIB (@VERSION@) Command list:", MADLIB.printQueue[1] )
+end
 
 function sorted_pairs( tableIn )
 	local keys = {}

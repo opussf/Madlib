@@ -8,7 +8,6 @@ ml: list
 1 - n terms. <15 chars>
 2 - n terms. <15 chars>
 
-
 ## title
 
 Add titles to the madlibs.
@@ -23,6 +22,13 @@ ml: list
 
 
 ml: start 2
+
+## Help
+
+Create new command:
+ml: help
+
+Prints the known commands.
 
 ## Add
 
