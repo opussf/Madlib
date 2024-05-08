@@ -1,5 +1,14 @@
 # FEATURE.md
 
+## list
+
+Create new command:
+ml: list
+
+1 - n terms. <15 chars>
+2 - n terms. <15 chars>
+
+
 ## title
 
 Add titles to the madlibs.
