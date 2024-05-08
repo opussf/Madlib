@@ -234,15 +234,21 @@ function MADLIB.Publish()
 	) )
 	MADLIB_game = nil
 end
-
 function MADLIB.AddGame()
 	MADLIB_newgame = { ["terms"] = {}, ["story"] = "", ["sentenceWordCount"] = 0}
 	MADLIB.Print( "Enter the new madlib as \"ml: Hello {name}.\" Use a trailing / to allow an additional line." )
 end
+function MADLIB.ListGames()
+	MADLIB.Print( "MADLIB (@VERSION@) list:" )
+	for i, ml in pairs( MADLIB_Data ) do
+		MADLIB.Print( string.format( "%i - %i terms. %s", i, #ml.terms, string.sub( ml.story, 1, 20 ) ) )
+	end
+end
 
 MADLIB.commandList = {
 	["start"] = { ["func"] = MADLIB.StartGame },
-	["add"] = { ["func"] = MADLIB.AddGame }
+	["add"] = { ["func"] = MADLIB.AddGame },
+	["list"] = { ["func"] = MADLIB.ListGames },
 }
 
 function MADLIB.CHAT_MSG_GUILD(...)

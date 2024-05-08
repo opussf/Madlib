@@ -206,11 +206,11 @@ function test.test_add_twoline_story()
 	MADLIB.OnUpdate()
 	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
 	MADLIB.OnUpdate()
-	MADLIB.CHAT_MSG_GUILD( "", "ml: Hello {name}. Please /", "" )
+	MADLIB.CHAT_MSG_GUILD( "", "ml: Hello {name}. Please /", "user1" )
 	MADLIB.OnUpdate()
-	MADLIB.CHAT_MSG_GUILD( "", "ml: don't {verb} me./")
+	MADLIB.CHAT_MSG_GUILD( "", "ml: don't {verb} me./", "user1" )
 	MADLIB.OnUpdate()
-	MADLIB.CHAT_MSG_GUILD( "", "ml: bye.", "" )
+	MADLIB.CHAT_MSG_GUILD( "", "ml: bye.", "user1" )
 	MADLIB.OnUpdate()
 	assertEquals( "Hello %s. Please don't %s me. Bye.", MADLIB_Data[2].story )
 end
@@ -218,12 +218,21 @@ function test.test_add_twoline_terms()
 	MADLIB.OnUpdate()
 	MADLIB.CHAT_MSG_GUILD( "", "ml: add", "user1" )
 	MADLIB.OnUpdate()
-	MADLIB.CHAT_MSG_GUILD( "", "ml: Hello {name}. Please /", "" )
+	MADLIB.CHAT_MSG_GUILD( "", "ml: Hello {name}. Please /", "user1" )
 	MADLIB.OnUpdate()
-	MADLIB.CHAT_MSG_GUILD( "", "ml: don't {verb} me.")
+	MADLIB.CHAT_MSG_GUILD( "", "ml: don't {verb} me.", "user1" )
 	MADLIB.OnUpdate()
 	assertEquals( "Verb", MADLIB_Data[2].terms[2] )
 end
+-- List
+function test.test_list_()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: list", "user1" )
+	assertEquals( "MADLIB (@VERSION@) list:", MADLIB.printQueue[1] )
+	assertEquals( "1 - 2 terms. Adjective: %s, Noun:", MADLIB.printQueue[2] )
+end
+
+-- Adjective: %s, Noun: %s.
 
 function sorted_pairs( tableIn )
 	local keys = {}
