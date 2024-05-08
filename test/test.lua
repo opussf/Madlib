@@ -228,7 +228,7 @@ end
 function test.test_help()
 	MADLIB.OnUpdate()
 	MADLIB.CHAT_MSG_GUILD( "", "ml: help", "user1" )
-	dump( MADLIB.printQueue )
+	assertEquals( "MADLIB (@VERSION@) Command list:", MADLIB.printQueue[1] )
 end
 
 function sorted_pairs( tableIn )
