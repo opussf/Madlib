@@ -224,11 +224,15 @@ function test.test_add_twoline_terms()
 	MADLIB.OnUpdate()
 	assertEquals( "Verb", MADLIB_Data[2].terms[2] )
 end
+-- List
 function test.test_list_()
 	MADLIB.OnUpdate()
 	MADLIB.CHAT_MSG_GUILD( "", "ml: list", "user1" )
-	assertEquals( "", MADLIB.printQueue[1] )
+	assertEquals( "MADLIB (@VERSION@) list:", MADLIB.printQueue[1] )
+	assertEquals( "1 - 2 terms. Adjective: %s, Noun:", MADLIB.printQueue[2] )
 end
+
+-- Adjective: %s, Noun: %s.
 
 function sorted_pairs( tableIn )
 	local keys = {}
