@@ -1,5 +1,12 @@
 # FEATURE.md
 
+## Help
+
+Create new command:
+ml: help
+
+Prints the known commands.
+
 ## Add
 
 Create new command:

@@ -224,6 +224,12 @@ function test.test_add_twoline_terms()
 	MADLIB.OnUpdate()
 	assertEquals( "Verb", MADLIB_Data[2].terms[2] )
 end
+---- Help
+function test.test_help()
+	MADLIB.OnUpdate()
+	MADLIB.CHAT_MSG_GUILD( "", "ml: help", "user1" )
+	dump( MADLIB.printQueue )
+end
 
 function sorted_pairs( tableIn )
 	local keys = {}

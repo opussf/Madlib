@@ -234,17 +234,22 @@ function MADLIB.Publish()
 	) )
 	MADLIB_game = nil
 end
-
 function MADLIB.AddGame()
 	MADLIB_newgame = { ["terms"] = {}, ["story"] = "", ["sentenceWordCount"] = 0}
 	MADLIB.Print( "Enter the new madlib as \"ml: Hello {name}.\" Use a trailing / to allow an additional line." )
 end
+function MADLIB.Help()
+	MADLIB.Print( "MADLIB ("..MADLIB_MSG_VERSION..") Help.  Command list: ")
+	for k, s in pairs( MADLIB.commandList ) do
+		MADLIB.Print( "ml: "..k..(string.len(s.help[1]) > 0 and " "..s.help[1] or "").." -- "..s.help[2] )
+	end
+end
 
 MADLIB.commandList = {
-	["start"] = { ["func"] = MADLIB.StartGame },
-	["add"] = { ["func"] = MADLIB.AddGame }
+	["start"] = { ["func"] = MADLIB.StartGame, ["help"] = { "<madlib number>", "Start a madlib." } },
+	["add"] = { ["func"] = MADLIB.AddGame, ["help"] = { "", "Add a new madlib." } },
+	["help"] = { ["func"] = MADLIB.Help, ["help"] = { "", "This list." } },
 }
-
 function MADLIB.CHAT_MSG_GUILD(...)
 	_, msg, player, language, _, _, other = ...
 	-- print( msg )
