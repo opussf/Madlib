@@ -239,7 +239,7 @@ function MADLIB.AddGame()
 	MADLIB.Print( "Enter the new madlib as \"ml: Hello {name}.\" Use a trailing / to allow an additional line." )
 end
 function MADLIB.ListGames()
-	MADLIB.Print( "MADLIB (@VERSION@) list:" )
+	MADLIB.Print( "MADLIB ("..MADLIB_MSG_VERSION..") list:" )
 	for i, ml in pairs( MADLIB_Data ) do
 		MADLIB.Print( string.format( "%i - %i terms. %s", i, #ml.terms, string.sub( ml.story, 1, 20 ) ) )
 	end
