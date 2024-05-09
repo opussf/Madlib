@@ -247,7 +247,7 @@ end
 function MADLIB.Help()
 	MADLIB.Print( "MADLIB ("..MADLIB_MSG_VERSION..") Command list: ")
 	for k, s in pairs( MADLIB.commandList ) do
-		MADLIB.Print( "ml: "..k..(string.len(s.help[1]) > 0 and " "..s.help[1] or "").." -- "..s.help[2] )
+		MADLIB.Print( "> ml: "..k..(string.len(s.help[1]) > 0 and " "..s.help[1] or "").." -- "..s.help[2] )
 	end
 end
 
